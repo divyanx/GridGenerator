@@ -1,74 +1,38 @@
 class Faces:
-    def __init__(self, half_edge=None):
-        self.half_edge = half_edge
-        self.vertices = []
-        self.edges = []
-        self.half_edges = []
+    def __init__(self):
+        # faces are set if clockwise half edges
+        self.face_half_edge_dict = dict()
+        self.half_edge_face_dict = dict()
+        self.face_holes_dict = dict()
+        self.face_inside_holes_dict = dict()
+        self.face_parent_face_dict = dict()
+        self._next_face_id = 0
 
-    def __str__(self):
-        return f"Face({self.vertices})"
+    def get_next_avail_id(self):
+        print("current face id: ", self._next_face_id)
+        new_face_id = self._next_face_id
+        self._next_face_id += 1
+        return new_face_id
 
-    def __repr__(self):
-        return str(self)
+    def add_new_face(self, half_edge_id):
+        # check if face already exists and return the face id
+        if half_edge_id in self.half_edge_face_dict.keys():
+            return self.half_edge_face_dict[half_edge_id]
 
-    def __hash__(self):
-        return hash(tuple(self.vertices))
+        new_face_id = self.get_next_avail_id()
+        self.face_half_edge_dict[new_face_id] = half_edge_id
+        self.half_edge_face_dict[half_edge_id] = new_face_id
+        return new_face_id
 
-    def __eq__(self, other):
-        if self.half_edge is None or other.half_edge is None:
-            return False
-        self.set_half_edges_from_half_edge()
-        other.set_half_edges_from_half_edge()
+    def get_face_half_edge_id(self, face_id):
+        return self.face_half_edge_dict[face_id]
 
-        if len(self.half_edges) != len(other.half_edges):
-            return False
+    def set_face_and_half_edge(self, face_id, half_edge_id):
+        self.face_half_edge_dict[face_id] = half_edge_id
+        self.half_edge_face_dict[half_edge_id] = face_id
 
-        for he in self.half_edges:
-            if he not in other.half_edges:
-                return False
-
-        return True
-
-    def set_vertices_from_half_edge(self):
-        """
-        Set vertices from half_edge
-        :return: None
-        """
-        self.vertices = []
-        he = self.half_edge
-        while True:
-            self.vertices.append(he.start_vertex)
-            he = he.next
-            if he == self.half_edge:
-                break
-
-    def set_edges_from_half_edge(self):
-        """
-        Set edges from half_edge
-        :return: None
-        """
-        self.edges = []
-        he = self.half_edge
-        while True:
-            self.edges.append(he.edge)
-            he = he.next
-            if he == self.half_edge:
-                break
-
-    def set_half_edges_from_half_edge(self):
-        """
-        Set half_edges from half_edge
-        :return: None
-        """
-        self.half_edges = []
-        he = self.half_edge
-        while True:
-            self.half_edges.append(he)
-            he = he.next
-            if he == self.half_edge:
-                break
-
-
-
-
+    def remove_face(self, face_id):
+        half_edge_id = self.face_half_edge_dict[face_id]
+        del self.face_half_edge_dict[face_id]
+        del self.half_edge_face_dict[half_edge_id]
 

@@ -1,39 +1,29 @@
 import numpy as np
 
 from polymesh.mesh import Mesh
-from polymesh.virtex import Virtex
-
-coords_list = [1, 2]
-coords_tuple = (2, 4)
-coords_ndarray = np.array([3, 6])
-
-coords_np_1 = np.array(coords_list)
-coords_np_2 = np.array(coords_tuple)
-coords_np_3 = np.ndarray(coords_ndarray)
-
-print(coords_np_1)
-print(coords_np_2)
-print(coords_np_3)
-
-
-vertex_1 = Virtex(np.array([0, 0]))
-vertex_2 = Virtex(np.array([1, 0]))
-vertex_3 = Virtex(np.array([1, .7]))
-vertex_4 = Virtex(np.array([.7, 1]))
-vertex_5 = Virtex(np.array([0, 1]))
 
 mesh = Mesh()
-mesh.add_face_from_vertices_list([vertex_1, vertex_2, vertex_3, vertex_4, vertex_5])
 
-vertex_7 = Virtex(np.array([.3, .3]))
-vertex_8 = Virtex(np.array([.3, .6]))
-vertex_9 = Virtex(np.array([.6, .6]))
-vertex_10 = Virtex(np.array([.6, .3]))
+vertex_cord_list = [(0, 0), (10, 0), (10, 7), (6, 10), (0, 10)]
 
-mesh.add_face_from_vertices_list([vertex_7, vertex_8, vertex_9, vertex_10])
-mesh.plot()
-print(mesh)
+faceId = mesh.add_face(vertex_cord_list)
 
+# get halfedge id between vertex (0,0) and (10,0)
+half_edge_id = mesh.get_half_edge_between_points((0, 0), (10, 0))
 
+print("Half edge id: ", half_edge_id)
+# partition the half edge at the point (5,0)
+mesh.partition_half_edge_at_point(half_edge_id, (5, 0))
 
+print(mesh.half_edges.half_edge_vertex_dict)
+
+hole_vertex_cord_list = [(2, 2), (4, 2), (4, 4), (2, 4)]
+
+holeId = mesh.add_face(hole_vertex_cord_list)
+
+print(mesh.half_edges.half_edge_vertex_dict)
+
+mesh.add_parent_hole_relation(faceId, holeId)
+print("faceId: ", faceId, " holeId: ", holeId)
+mesh.plot_faces([faceId, holeId])
 
